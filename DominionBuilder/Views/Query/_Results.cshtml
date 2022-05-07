@@ -1,0 +1,22 @@
+﻿@model DominionBuilder.Models.QueryViewModel
+@{
+
+}
+
+@foreach (var card in Model.QueryResults)
+{
+    <tr>
+        <td><span class="link" data-cardid="@card.Card.Id">@card.Card.Name</span></td>
+        <td>
+            @card.Card.Cost
+            @if (card.Card.SpecialCosts.Any())
+            {
+                var icon = card.Card.SpecialCosts.FirstOrDefault().TypeId == 1 ? "potionicon.png" : "debticon.png";
+                <img src="~/images/@icon" />
+            }
+        </td>
+        <td>@card.TypeString</td>
+        <td>@card.Card.Set.Name</td>
+        <td>@card.CategoryString</td>
+    </tr>
+}

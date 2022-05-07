@@ -1,0 +1,136 @@
+﻿@model DominionBuilder.Models.CommonViewModel
+
+<div class="setmenu">
+    <div class="setmenuitemAll">
+        ALL
+    </div>
+    @for (int i = 0; i < 15; i++)
+    {
+        var imgname = i < 10 ? $"icon0{i}.png" : $"icon{i}.png";
+        <div class="setmenuitem" data-setid="@i">
+            <img src="~/images/@imgname" /> @Model.ExpNames[i]
+        </div>
+    }
+</div>
+
+<div class="sethamburger">
+    <div class="sethamburgerselectionwrap">
+        Set Selection
+    </div>
+    <div class="sethamburgeritemwrap">
+        <div class="sethamburgeritemAll">
+            ALL
+        </div>
+        @for (int i = 0; i < 15; i++)
+        {
+            var imgname = i < 10 ? $"icon0{i}.png" : $"icon{i}.png";
+            <div class="sethamburgeritem" data-setid="@i">
+                <img src="~/images/@imgname" /> @Model.ExpNames[i]
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    $('.setmenuitem, .sethamburgeritem').on('click', function () {
+        var setid = $(this).data('setid');
+
+        $('.setmenuitem[data-setid="' + setid + '"]').toggleClass('selected');
+        $('.sethamburgeritem[data-setid="' + setid + '"]').toggleClass('selected');
+
+        var allAreSelected = true;
+        $('.setmenuitem').each(function () {
+            if (!$(this).hasClass('selected')) {
+                allAreSelected = false;
+            }
+        });
+
+        if (allAreSelected) {
+            $('.setmenuitemAll').addClass('selected');
+            $('.sethamburgeritemAll').addClass('selected');
+        }
+        else {
+            $('.setmenuitemAll').removeClass('selected');
+            $('.sethamburgeritemAll').removeClass('selected');
+        }
+    });
+
+    $('.setmenuitemAll, .sethamburgeritemAll').on('click', function () {
+        $(this).toggleClass('selected');
+
+        if ($(this).hasClass('selected')) {
+            $('.setmenuitem').addClass('selected');
+            $('.sethamburgeritem').addClass('selected');
+        }
+        else {
+            $('.setmenuitem').removeClass('selected');
+            $('.sethamburgeritem').removeClass('selected');
+        }
+    });
+
+
+    $('.sethamburgerselectionwrap').on('click', function () {
+        $('.sethamburgeritemwrap').toggle();
+    });
+</script>
+
+<style>
+    .setmenu {
+        max-width: 64em;
+        clear: both;
+    }
+
+    .sethamburger {
+        display: none;
+        width: 18em;
+    }
+
+    .sethamburgerselectionwrap {
+        cursor: pointer;
+    }
+
+    .sethamburgeritemwrap {
+        display: none;
+        position: absolute;
+        z-index: 10;
+        max-width: 400px;
+    }
+
+    @@media (max-width: 950px) {
+        .setmenu {
+            max-width: 46em;
+        }
+    }
+
+    @@media (max-width: 700px) {
+        .setmenu {
+            display: none;
+        }
+
+        .sethamburger {
+            display: inline-block;
+        }
+    }
+
+    .setmenuitem, .sethamburgeritem, .setmenuitemAll, .sethamburgeritemAll {
+        display: inline-block;
+        background-color: #bbb;
+        color: white;
+        font-weight: bold;
+        padding: .5em;
+        cursor: pointer;
+        height: 2.6em;
+        width: 9em;
+        float: left;
+    }
+
+    .setmenuitem:hover, .sethamburgeritem:hover, .setmenuitemAll:hover, .sethamburgeritemAll:hover {
+        color: yellow;
+        background-color: #999;
+    }
+
+    .setmenuitem.selected, .sethamburgeritem.selected, .setmenuitemAll.selected, .sethamburgeritemAll.selected {
+        background-color: #888;
+        color: blue;
+    }
+</style>

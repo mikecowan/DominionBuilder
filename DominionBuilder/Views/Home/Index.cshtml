@@ -1,0 +1,266 @@
+﻿@model DominionBuilder.Models.CommonViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@Html.Partial("../Shared/_SetNav", Model)
+
+<div style="clear: both;"></div>
+
+<div>
+    <div>
+        <button id="generate">Generate</button>
+    </div>
+</div>
+
+<div id="kingdomwrap"></div>
+
+<div>
+    <ul>
+        <li><label for="checkboxVillage"><input type="checkbox" id="checkboxVillage" class="req" data-table="Category" data-name="Village" /> Village</label></li>
+        <li><label for="checkboxTreasure"><input type="checkbox" id="checkboxTreasure" class="req" data-table="Type" data-name="Treasure" /> Treasure</label></li>
+        <li><label for="checkboxAltvp"><input type="checkbox" id="checkboxAltvp" class="req" data-table="Type" data-name="Victory" /> Alt VP</label></li>
+        <li><label for="checkboxBuy"><input type="checkbox" id="checkboxBuy" class="req" data-table="Category" data-name="Buy" /> +Buy</label></li>
+        <li><label for="checkboxTrasher"><input type="checkbox" id="checkboxTrasher" class="req" data-table="Category" data-name="Trasher" /> Trasher</label></li>
+        <li>Include / Exclude Attacks (Curser, Handsize, Junking)</li>
+    </ul>
+
+    <div class="tablediv">
+        <div class="tabledivrow">
+            <div class="tabledivcell">Include</div>
+            <div class="tabledivcell">Exclude</div>
+            <div class="tabledivcell"></div>
+        </div>
+        <div class="tabledivrow">
+            <div class="tabledivcell"><input type="checkbox" class="checkboxradio include" data-table="Type" data-name="Attack" data-group="1" id="checkboxAttackInclude" /></div>
+            <div class="tabledivcell"><input type="checkbox" class="checkboxradio exclude" data-table="Type" data-name="Attack" data-group="1" id="checkboxAttackExclude" /></div>
+            <div class="tabledivcell">All Attacks</div>
+        </div>
+        <div class="tabledivrow">
+            <div class="tabledivcell"><input type="checkbox" class="checkboxradio include" data-table="Category" data-name="Curser" data-group="2" id="checkboxCurseAttackInclude" /></div>
+            <div class="tabledivcell"><input type="checkbox" class="checkboxradio exclude" data-table="Category" data-name="Curser" data-group="2" id="checkboxCurseAttackExclude" /></div>
+            <div class="tabledivcell">Curse Attack</div>
+        </div>
+        <div class="tabledivrow">
+            <div class="tabledivcell"><input type="checkbox" class="checkboxradio include" data-table="Category" data-name="Handsize Attack" data-group="3" id="checkboxHandsizeAttackInclude" /></div>
+            <div class="tabledivcell"><input type="checkbox" class="checkboxradio exclude" data-table="Category" data-name="Handsize Attack" data-group="3" id="checkboxHandsizeAttackExclude" /></div>
+            <div class="tabledivcell">Handsize Attack</div>
+        </div>
+        <div class="tabledivrow">
+            <div class="tabledivcell"><input type="checkbox" class="checkboxradio include" data-table="Category" data-name="Junking Attack" data-group="4" id="checkboxJunkingAttackInclude" /></div>
+            <div class="tabledivcell"><input type="checkbox" class="checkboxradio exclude" data-table="Category" data-name="Junking Attack" data-group="4" id="checkboxJunkingAttackExclude" /></div>
+            <div class="tabledivcell">Junking Attack</div>
+        </div>
+    </div>
+
+</div>
+
+<div style="clear: both;"></div>
+
+<script>
+    $('#generate').on('click', function () {
+        GenerateKingdom();
+    });
+
+    function GenerateKingdom() {
+        var input = {
+            Sets: [],
+            //Requirements: {
+            //    Village: $('#checkboxVillage').is(':checked') ? true : null,
+            //    Treasure: $('#checkboxVillage').is(':checked') ? true : null,
+            //    AltVp: $('#checkboxVillage').is(':checked') ? true : null,
+            //    Buy: $('#checkboxVillage').is(':checked') ? true : null,
+            //    Trasher: $('#checkboxVillage').is(':checked') ? true : null,
+            //    Attack: $('#checkboxAttackInclude').is(':checked') ? true : $('#checkboxAttackExclude').is(':checked') ? false : null,
+            //    AtkCurse: $('#checkboxCurseAttackInclude').is(':checked') ? true : $('#checkboxCurseAttackExclude').is(':checked') ? false : null,
+            //    AtkHandsize: $('#checkboxHandsizeAttackInclude').is(':checked') ? true : $('#checkboxHandsizeAttackExclude').is(':checked') ? false : null,
+            //    AtkJunking: $('#checkboxJunkingAttackInclude').is(':checked') ? true : $('#checkboxJunkingAttackExclude').is(':checked') ? false : null
+            //},
+            reqs: []
+        };
+
+        $('.setmenuitem').each(function () {
+            if ($(this).hasClass('selected')) {
+                input.Sets.push($(this).data('setid'));
+            }
+        });
+
+        $('.req').each(function () {
+            input.reqs.push({
+                Name: $(this).data('name'),
+                Value: $(this).is(':checked') ? true : null,
+                Table: $(this).data('table')
+            });
+        });
+
+        $('.include').each(function () {
+            if ($(this).is(':checked')) {
+                input.reqs.push({
+                    Name: $(this).data('name'),
+                    Value: true,
+                    Table: $(this).data('table')
+                });
+            }
+        });
+
+        $('.exclude').each(function () {
+            if ($(this).is(':checked')) {
+                input.reqs.push({
+                    Name: $(this).data('name'),
+                    Value: false,
+                    Table: $(this).data('table')
+                });
+            }
+        });
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GenerateKingdom", "Home")',
+            data: input,
+            dataType: "html",
+            cache: false,
+            success: function (data) {
+                var test = data;
+                $('#kingdomwrap').html(data);
+
+                $('#kingdomwrap').find('.cardwrap').each(function () {
+                    $(this).on('click', function () {
+                        CardClick($(this));
+                    });
+                });
+            },
+            fail: function (data) {
+
+            }
+        });
+    }
+
+    function CardClick(wrap) {
+        var count = wrap.find('.card').length;
+
+        if (count > 1) {
+            var thisItem = wrap.find('.card:first');
+            var topSrc = thisItem.attr('src');
+
+            for (var i = 0; i < count - 1; i++) {
+                var nextItem = thisItem.next('.card');
+                thisItem.prop('src', nextItem.attr('src'))
+                thisItem = nextItem;
+            }
+
+            wrap.find('.card:last').prop('src', topSrc);
+        }
+    };
+
+    $('.checkboxradio').on('click', function () {
+        var groupnum = $(this).data('group');
+        var twin = $('.checkboxradio[data-group="' + groupnum + '"]').not(document.getElementById($(this).attr('id')));
+
+        if ($(this).is(':checked') && twin.is(':checked')) {
+            twin.prop('checked', false);
+        }
+
+        //clicked exclude all
+        if ($(this).attr('id') == 'checkboxAttackExclude' && $('#checkboxAttackExclude').is(':checked')) {
+            $('.include').prop('checked', false);
+            $('.exclude').prop('checked', true);
+        }
+
+        // clicked one of the sub-item includes
+        else {
+            $('.include').each(function () {
+                if ($(this).is(':checked')) {
+                    //$('#checkboxAttackInclude').prop('checked', true);
+                    $('#checkboxAttackExclude').prop('checked', false);
+                }
+            });
+        }
+
+
+    });
+</script>
+
+<style>
+    #kingdomwrap {
+        padding-left: 5em;
+    }
+
+    .rowwrap {
+        /*padding-top: 5em;*/
+        max-width: 1300px;
+    }
+
+    .cardwrap {
+        padding-top: 5em;
+        display: inline-block;
+        /*width: 250px;*/
+        width: 240px;
+        position: relative;
+    }
+
+    .card {
+        /*width: 150px;*/
+    }
+
+    @@media (max-width: 700px) {
+        #kingdomwrap {
+            padding-left: 0;
+        }
+
+        .cardwrap {
+            width: 200px;
+        }
+
+        .card {
+            width: 145px;
+        }
+    }
+
+
+    .cardwrap.extra {
+        /*width: 175px;*/
+        /*width: 15em;*/
+    }
+
+    .kingdomcard {
+        z-index: 1;
+    }
+
+    .splitcard {
+        position: absolute;
+        /*left: 5%;*/
+        left: -2em;
+        top: 2em;
+        z-index: -2;
+        /*transform: rotate(90deg);*/
+    }
+
+    .kingdomcard + .splitcard {
+        z-index: -1;
+    }
+
+    .redbg {
+        background-color: red;
+    }
+
+    .bluebg {
+        background-color: blue;
+    }
+
+
+    /* tablediv */
+    .tablediv {
+    }
+
+    .tabledivrow {
+        clear: left;
+    }
+
+    .tabledivcell {
+        min-width: 5em;
+        padding: .1em .5em;
+        display: inline-block;
+        float: left;
+    }
+</style>

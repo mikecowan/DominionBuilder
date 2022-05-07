@@ -1,0 +1,31 @@
+﻿@model DominionBuilder.Models.DominionViewModel
+@{
+    //var dmv = Model.dominionView;
+    var leadingzeroes = Model.DisplayCard.Card.Id < 10 ? "00" : Model.DisplayCard.Card.Id < 100 ? "0" : "";
+    var imgurl = $"{leadingzeroes}{Model.DisplayCard.Card.Id}.jpg";
+}
+
+
+<img src="~/images/@imgurl" class="card kingdomcard" />
+@*@if (Model.DisplayCard.SplitPile != null)
+{
+    var zeroes = Model.DisplayCard.SplitPile.Id < 10 ? "00" : Model.DisplayCard.SplitPile.Id < 100 ? "0" : "";
+    var splitimg = $"{zeroes}{Model.DisplayCard.SplitPile.Id}.jpg";
+
+    <img src="~/images/@splitimg" class="card splitcard" />
+}*@
+
+@if (Model.DisplayCard.Split != null)
+{
+    foreach (var card in Model.DisplayCard.Split)
+    {
+        var zeroes = card.Id < 10 ? "00" : card.Id < 100 ? "0" : "";
+        var splitimg = $"{zeroes}{card.Id}.jpg";
+
+        <img src="~/images/@splitimg" class="card splitcard" />
+    }
+}
+
+<script>
+
+</script>

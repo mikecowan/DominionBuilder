@@ -1,0 +1,119 @@
+﻿@model DominionBuilder.Models.DominionViewModel
+
+@{
+    //var dmv = Model.dominionView;
+}
+
+@*@foreach (var set in Model.IncludedSetNames)
+    {
+        <div>@set</div>
+    }*@
+
+<div class="rowwrap">
+    @foreach (var card in Model.Kingdom)
+    {
+        Model.DisplayCard = card;
+        <div class="cardwrap">
+            @Html.Partial("_Card", Model)
+        </div>
+    }
+</div>
+
+@if (Model.BaneCard != null || Model.MouseCard != null)
+{
+    <div class="rowwrap">
+        @if (Model.BaneCard != null)
+        {
+            var imgpath = Model.BaneCard.Id < 10 ? $"00{Model.BaneCard.Id}.jpg" : Model.BaneCard.Id < 100 ? $"0{Model.BaneCard.Id}.jpg" : $"{Model.BaneCard.Id}.jpg";
+            <div class="cardwrap">
+                <h2>Bane:</h2>
+                <div class="">
+                    <img src="~/images/@imgpath" class="card kingdomcard" />
+                </div>
+            </div>
+        }
+
+        @if (Model.MouseCard != null)
+        {
+            var imgpath = Model.MouseCard.Id < 10 ? $"00{Model.MouseCard.Id}.jpg" : Model.MouseCard.Id < 100 ? $"0{Model.MouseCard.Id}.jpg" : $"{Model.MouseCard.Id}.jpg";
+            <div class="cardwrap">
+                <h2>Mouse:</h2>
+                <div class="">
+                    <img src="~/images/@imgpath" class="card kingdomcard" />
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@if (Model.PortraitCards != null)
+{
+    <div class="rowwrap">
+        <h2>Portrait Cards:</h2>
+        @foreach (var x in Model.PortraitCards)
+        {
+            var imgpath = $"{x.Id}.jpg";
+            <div class="cardwrap">
+                <img src="~/images/@imgpath" />
+            </div>
+        }
+    </div>
+}
+
+@if (Model.ExtraCards.Count > 0)
+{
+    <div class="rowwrap">
+        @foreach (var e in Model.ExtraCards)
+        {
+            var imgpath = e.Id < 100 ? $"0{e.Id}.jpg" : $"{e.Id}.jpg";
+            <div class="cardwrap extra">
+                <img src="~/images/@imgpath" class="card kingdomcard" />
+            </div>
+        }
+    </div>
+}
+
+@if (Model.Boons || Model.Hexes)
+{
+    <div class="rowwrap">
+        @if (Model.Boons)
+        {
+            <div class="cardwrap">
+                <img src="~/images/boons.jpg" />
+            </div>
+        }
+        @if (Model.Hexes)
+        {
+            <div class="cardwrap">
+                <img src="~/images/hexes.jpg" />
+            </div>
+        }
+    </div>
+}
+
+@if (Model.DruidCards.Count > 0)
+{
+    <div class="rowwrap">
+        @foreach (var d in Model.DruidCards)
+        {
+            var imgpath = $"{d.Id}.jpg";
+            <div class="cardwrap">
+                <img src="~/images/@imgpath" />
+            </div>
+        }
+    </div>
+}
+
+@if (Model.Peripherals.Count > 0)
+{
+    <div class="rowwrap">
+        @foreach (var p in Model.Peripherals)
+        {
+            var imgpath = p.Id < 10 ? $"p0{p.Id}.jpg" : $"p{p.Id}.jpg";
+            <div class="cardwrap extra">
+                <div>@p.Name</div>
+                <div><img src="~/images/@imgpath" /></div>
+            </div>
+        }
+    </div>
+}

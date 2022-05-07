@@ -1,0 +1,201 @@
+﻿@model DominionBuilder.Models.CommonViewModel
+
+@Html.Partial("../Shared/_SetNav", Model)
+
+
+<div style="clear:both;"></div>
+
+<div>
+    <div>
+        Cost
+        <input type="number" id="costmin" min="0" max="11" value="0" />
+        <input type="number" id="costmax" min="0" max="11" value="11" />
+        <input type="range" />
+        <input type="search" id="cardsearch" />
+
+        
+
+        <select id="typeselect" multiple size="10">
+            @foreach (var type in Model.queryView.Types)
+            {
+                var advancedclass = type.Advanced ? "selectadvanced" : string.Empty;
+                <option value="@type.Id" class="@advancedclass">@type.Name</option>
+            }
+        </select>
+
+        <select id="categoryselect" multiple size="10">
+            @foreach (var category in Model.queryView.Categories)
+            {
+                <option value="@category.Id">@category.Name</option>
+            }
+        </select>
+
+        <label>
+            <input type="radio" name="radioAndOr" id="radioAnd" /> AND
+        </label>
+        <label>
+            <input type="radio" name="radioAndOr" id="radioOr" checked /> OR
+        </label>
+        <label>
+            <input type="checkbox" id="checkAdvanced" /> Advanced
+        </label>
+    </div>
+    <button id="btnQuery">Query</button>
+    <button id="btnReset">Reset</button>
+</div>
+
+<h2>Card Query <span id="resultCount"></span></h2>
+
+<img id="previewImg" src="" />
+
+<table id="queryTable">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Cost</th>
+            <th>Types</th>
+            <th>Set</th>
+            <th>Categories</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    $(document).ready(function () {
+        $('.selectadvanced').hide();
+    });
+
+    $('#checkAdvanced').on('change', function () {
+        $('.selectadvanced').toggle();
+    });
+
+    $('#btnQuery').on('click', function () {
+
+        var input = {
+            CostMin: $('#costmin').val(),
+            CostMax: $('#costmax').val(),
+            SearchText: $('#cardsearch').val(),
+            AndSelect: $('#radioAnd').is(':checked'),
+            Types: [],
+            Categories: [],
+            Sets: []
+        };
+
+        var advanced = $('#checkAdvanced').is(':checked');
+
+        $('#typeselect option').each(function () {
+            if ($(this).is(':checked')) {
+                input.Types.push($(this).val());
+            }
+        });
+
+        $('#categoryselect option').each(function () {
+            if ($(this).is(':checked')) {
+                input.Categories.push($(this).val());
+            }
+        });
+
+        $('.setmenuitem.selected').each(function () {
+            input.Sets.push($(this).data('setid'));
+        });
+
+        if ((input.CostMax >= input.CostMin && input.Sets.length > 0 /*&& input.Types.length > 0*/) || input.SearchText != '') {
+            $.ajax({
+                type: "POST",
+                //url: '/Home/GenerateKingdom',
+                url: '@Url.Action("Test", "Query")',
+                data: input,
+                dataType: "html",
+                cache: false,
+                success: function (data) {
+                    var test = data;
+
+                    var matches = data.match(/<tr>/g);
+                    var occurances = 0;
+                    if (matches !== null) {
+                        occurances = matches.length;
+                    }
+
+                    $('#resultCount').text("(" + occurances + ")");
+                    $('#queryTable tbody').html(data);
+                    //$('#kingdomwrap').html(data);
+
+                    $('#queryTable .link').each(function () {
+                        $(this).on('click', function () {
+                            ShowImage($(this).data('cardid'));
+                        });
+                    });
+                    //$('#kingdomwrap').find('.kingdomcard').each(function () {
+                    //    $(this).on('click', function () {
+                    //        CardClick($(this));
+                    //    });
+                    //});
+                },
+                fail: function (data) {
+
+                }
+            });
+        }
+
+        
+
+    });
+
+    function ShowImage(cardid) {
+        var id =
+                cardid < 10 ? '00' + cardid :
+                cardid < 100 ? '0' + cardid :
+                '' + cardid;
+
+        $('#previewImg').attr('src', '/images/' + id + '.jpg');
+        $('#previewImg').show();
+    }
+
+    $('#previewImg').on('click', function () {
+        $('#previewImg').hide();
+    });
+
+    $('#btnReset').on('click', function () {
+        $('#typeselect option').each(function () {
+            $(this).prop('selected', false);
+        });
+
+        $('#categoryselect option').each(function () {
+            $(this).prop('selected', false);
+        });
+
+        $('#costmin').val('0');
+        $('#costmax').val('11');
+        $('#cardsearch').val('');
+    });
+</script>
+
+<style>
+    #previewImg {
+        position: fixed;
+        display: none;
+        top: 100px;
+        left: 800px;
+    }
+
+    .link {
+        color: #337ab7;
+        cursor: pointer;
+    }
+
+    .link:hover {
+        color: #23527c;
+        text-decoration: underline;
+    }
+
+    th, td {
+        padding: 5px;
+    }
+
+    table, th, td {
+        border: 1px solid;
+        border-collapse: collapse;
+    }
+</style>
+
